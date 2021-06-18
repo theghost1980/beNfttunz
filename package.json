@@ -1,0 +1,47 @@
+{
+  "name": "beserver",
+  "version": "1.0.0",
+  "description": "backend for nfttunz, a musician nft paradise",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/theghost1980/beNfttunz.git"
+  },
+  "keywords": [
+    "nft",
+    "music",
+    "server",
+    "backend",
+    "backend",
+    "server",
+    "hive",
+    "crypto",
+    "live",
+    "music"
+  ],
+  "author": "saturno mangieri @theghost1980",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/theghost1980/beNfttunz/issues"
+  },
+  "homepage": "https://github.com/theghost1980/beNfttunz#readme",
+  "dependencies": {
+    "@hiveio/dhive": "^0.14.12",
+    "axios": "^0.21.1",
+    "body-parser": "^1.19.0",
+    "cloudinary": "^1.26.0",
+    "cors": "^2.8.5",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "express-fileupload": "^1.2.1",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.12.14",
+    "multer": "^1.4.2",
+    "sharp": "^0.28.3",
+    "util": "^0.12.4"
+  }
+}
