@@ -1,7 +1,7 @@
 require('dotenv').config();
 const pre_fix = process.env.ROUTE_PRE_FIX;
 module.exports = {
-    port: process.env.DEFAULT_PORT,
+    port: process.env.PORT,
     project_name: 'NFTTUNZ.io',
     devMode: true,
     routes: [
