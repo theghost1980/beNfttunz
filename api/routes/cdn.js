@@ -68,7 +68,7 @@ router.post('/upload', authToken, function(req,res){
         if(err) return res.status(500).send({ status: 'failed', message: 'Error on Multer.', error: err });
         const { fileType, date } = req.body;
         let path = baseFolder + `/${fileType}`;
-        const options = fileType === 'image' ? { folder: path  } : { folder: path, resource_type: 'video' }; //for now we treat the rest as video.
+        const options = fileType === 'image' ? { folder: path, } : { folder: path, resource_type: 'video' }; //for now we treat the rest as video.
         console.log(`About to upload to ${path}.`);
         console.log(req.files); //now we will handle from FE between options: video, image, audio.
         let upPromise = req.files.map(file => new Promise((resolve,reject) => {
