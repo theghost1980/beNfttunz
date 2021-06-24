@@ -17,7 +17,7 @@ function createToken(acc, id){ //id as _id of mongoDB user field.
 
 //regular auth
 router.post('/authMe', async function(req, res){
-    const welcomeMsg = 'Welcome to NFTTunz';
+    const welcomeMsg = 'Welcome to NFTTunz ';
     const { ts, sig, acc } = req.query;
     // console.log('Reading an Auth request, body:', req.body);
     if( !ts || !sig || !acc ){ //no params provided return error.
