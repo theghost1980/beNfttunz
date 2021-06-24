@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const config = require('../../common/config');
-const bodyParser = require('body-parser');
 const Test_connection = require('../../common/models/test_connection');
 const contact_info = {
     contact_email: 'nfttunz.io@protonmail.com',
@@ -9,38 +8,29 @@ const contact_info = {
 };
 const { Client, Signature, cryptoUtils } = require('@hiveio/dhive');
 const client = new Client(config.apiHive);
+const cdnInfo = { cdnCloudName: config.cdnCloudName, cdnApiKey: config.cdnApiKey, cdnApiSecret: config.cdnApiSecret, };
+const pingRouteCDN = `https://${cdnInfo.cdnApiKey}:${cdnInfo.cdnApiSecret}@api.cloudinary.com/v1_1/${cdnInfo.cdnCloudName}/ping`;
 
-// const axios = require('axios').default;
-router.use(bodyParser.urlencoded({ extended: false }));
-router.use(bodyParser.json());
-
-//Available requests for public router
-const requests = [
-    { id: 'req-0', name: 'Get Available Requests.', typeRequest: 'GET', params: false, expected: 'Request List.' },
-    { id: 'req-1', name: 'Ping Server', typeRequest: 'GET', params: false, expected: '200 - OK' },
-    { id: 'req-2', name: 'Get Contact Info', typeRequest: 'GET', params: false, expected: 'Contact Information' },
-];
-//
+const axios = require('axios').default;
 
 //////Routes for devs//////
-//=> ask for current available requests.
-router.get('/requests', function(req,res){
-    return res.status(200).send({ requests });
-});
 router.get('/info', function(req,res){
     return res.status(200).send({ contact_info });
 });
 //-> ping server
 router.get('/ping', async function(req,res){
     const services = {};
-    //TODO 
-    // - organize it as a promises array.
-    // - test cloudinary.
-    // - test coingecko.
-    // send a replay as
-    // [
-    //  { service: 'hiveAPI', status: 'OK' }, ...
-    // ]
+    //test CDN folder status
+    let promise_testCDN = new Promise((resolve, reject) => {
+        axios.get(pingRouteCDN).then(response => {
+            // console.log('response CDN:');
+            // console.log(response);
+            resolve({ status: 'sucess', message: response.data });
+        }).catch(error => reject(error));
+    });
+    await promise_testCDN.then(result => {
+        services['CDN-cloudinary'] = result;
+    }).catch(reject => services['CDN-cloudinary'] = { status: 'failed', message: reject });
     //test api hive.
     let promise_testHIVE = new Promise((resolve, reject) => {
         client.database.getAccounts(['theghost1980'])

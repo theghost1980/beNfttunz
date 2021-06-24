@@ -6,7 +6,7 @@ if(config.devMode){
     console.log('========TEST MODE ACTIVE - WARNING======')
     console.log('----Available routes----');
     config.routes.forEach(route => {
-        console.log(`Name: ${route.name} - Route: ${route.route} - Required Token: ${route.needToken}. To Ask methods: ${route.askMethods}`);
+        console.log(`Name: ${route.name} - Route: ${route.route}`);
     })
     console.log('========================================')
 }

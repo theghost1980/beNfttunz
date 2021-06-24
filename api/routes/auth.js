@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const config = require('../../common/config');
-const bodyParser = require('body-parser');
 const User = require('../../common/models/user');
 const jwt = require('jsonwebtoken');
 
@@ -9,28 +8,18 @@ const jwt = require('jsonwebtoken');
 const { Client, Signature, cryptoUtils } = require('@hiveio/dhive');
 const client = new Client(config.apiHive);
 
-router.use(bodyParser.urlencoded( { extended: false }));
-router.use(bodyParser.json());
-
-//Available requests for auth router
-const requests = [
-    { id: 'req-0', ep: '/authrequests', name: 'Get Available Requests.', typeRequest: 'GET', params: 'token -H', expected: 'Auth Request List.' },
-    { id: 'req-1', ep: '/authme', name: 'Auth User', typeRequest: 'POST', params: 'ts, sig, acc on BODY', expected: '200 - OK, userdata, JWT token. All in response.' },
-    { id: 'req-2', ep: '/authValid', name: 'Check Token', typeRequest: 'GET', params: 'token -H', expected: '200 - Token still valid.'},
-];
-//
-
 //functions/CB
-function createToken(acc){
-    return jwt.sign({ usernameHive: acc }, config.jwtSecret, { expiresIn: config.tokenExp });
+function createToken(acc, id){ //id as _id of mongoDB user field.
+    //TODO add the user mongoDB id to the token.
+    return jwt.sign({ usernameHive: acc, id: id }, config.jwtSecret, { expiresIn: config.tokenExp });
 }
 //END functions/CB
 
 //regular auth
 router.post('/authMe', async function(req, res){
     const welcomeMsg = 'Welcome to NFTTunz';
-    const { ts, sig, acc } = req.body;
-    console.log('Reading an Auth request, body:', req.body);
+    const { ts, sig, acc } = req.query;
+    // console.log('Reading an Auth request, body:', req.body);
     if( !ts || !sig || !acc ){ //no params provided return error.
         return res.status(400).send({ status: 'failed', message: 'I cannot auth like this. Missing parameters. Check documentation please.'});
     }
@@ -51,11 +40,11 @@ router.post('/authMe', async function(req, res){
                 User.findOne({ username: acc }, function(err, found){
                     if(err){ return res.status(500).send( { status: 'failed', message: err })};
                     if(found){ //send user data back.
-                        return res.status(200).send({ status: 'sucess', message: welcomeMsg + `@${acc}`, token: createToken(acc), tokenExp: config.tokenExp, dataUser: JSON.stringify(found), newUser: false });
+                        return res.status(200).send({ status: 'sucess', message: welcomeMsg + `@${acc}`, token: createToken(acc,found._id), tokenExp: config.tokenExp, dataUser: JSON.stringify(found), newUser: false });
                     }else{  // creates newuser + send user data back.
-                        User.create({ username: acc }, function(err, newRecord){
+                        User.create({ username: acc, createdAt: new Date, }, function(err, newRecord){
                             if(err){ return res.status(500).send( { status: 'failed', message: err })};
-                            return res.status(200).send({ status: 'sucess', message: welcomeMsg + `@${acc}`, token: createToken(acc), tokenExp: config.tokenExp, dataUser: JSON.stringify(newRecord) , newUser: true });
+                            return res.status(200).send({ status: 'sucess', message: welcomeMsg + `@${acc}`, token: createToken(acc,newRecord._id), tokenExp: config.tokenExp, dataUser: JSON.stringify(newRecord) , newUser: true });
                         });
                     }
                 });
@@ -78,22 +67,10 @@ router.get('/authValid', function(req, res){
     jwt.verify(token, config.jwtSecret, function(err, decoded){
         if(err) return res.status(500).send({ status: 'failed', message: 'Failed to authenticate token.'});
         if(!decoded) res.status(500).send({ status: 'failed', message: 'Invalid token.'}); //invalid token
-        return res.status(200).send({status: 'sucess', message: 'Still valid token.'}); //good  token
+        return res.status(200).send({status: 'sucess', message: 'Token still valid.'}); //good  token
     });
 });
 
-//////Routes for devs//////
-//=> ask for current available requests.
-router.get('/requests', function(req,res){
-    const token = req.headers['token'];
-    if(!token){ return res.status(400).send({ status: 'failed', message: 'No authorization found!'})};
-    jwt.verify(token, config.jwtSecret, function(err, decoded){
-        if(err) return res.status(500).send({ status: 'failed', message: 'Failed to authenticate token.'});
-        if(!decoded) res.status(500).send({ status: 'failed', message: 'Invalid token.'}); //invalid token
-        return res.status(200).send({ status: 'sucess', requests: requests });
-    });
-});
-///end routes for devs.
 
 module.exports = router;
 

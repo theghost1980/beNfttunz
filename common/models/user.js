@@ -67,6 +67,10 @@ const UserSchema = new mongoose.Schema({
     index: true,
     default: null,
   },
+  foldersCDN: {
+    type: Boolean,
+    default: false,
+  },
   createdAt: Date,
   updatedAt: Date,
 });

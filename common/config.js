@@ -7,11 +7,18 @@ module.exports = {
     devMode: true,
     mongoURI: process.env.DB_URI,
     routes: [
-        { name: 'welcome', route: pre_fix +"/", needToken: false, askMethods: "Display a Welcome Message + contact email."},
-        { name: 'public', route: pre_fix + process.env.PUBLIC_ROUTE, needToken: false, askMethods: "GET route+'requests' noParams."},
-        { name: 'auth', route: pre_fix + process.env.AUTH_ROUTE, needToken: true, askMethods: "GET route+'requestsauth' token needed to ask for methods."},
+        { name: 'public', route: pre_fix + process.env.PUBLIC_ROUTE, },
+        { name: 'auth', route: pre_fix + process.env.AUTH_ROUTE, },
+        { name: 'cdn', route: pre_fix + process.env.CDN_ROUTE, },
+        { name: 'users', route: pre_fix + process.env.USERS_ROUTE, },
+        { name: 'ssc', route: pre_fix + process.env.SSC_ROUTE, },
     ],
     apiHive: process.env.API_HIVE, //for now as a single url, later on add an array to have backup urls.
     jwtSecret: process.env.JWT_SECRET,
     tokenExp: 21600,
+    cdnCloudName: process.env.CLOUD_NAME,
+    cdnApiKey: process.env.CLOUD_API_KEY,
+    cdnApiSecret: process.env.CLOUD_API_SECRET,
+    rpcServer: process.env.TEST_SERVER_URL, //will change as soon as we test and move to production ready
+    rpcNodeId: process.env.TEST_SERVER_ID, //will change as soon as we test and move to production ready
 }
