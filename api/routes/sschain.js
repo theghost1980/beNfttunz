@@ -7,23 +7,81 @@ const sscjs = require('sscjs');
 const sscNode = new sscjs(config.rpcServer);
 const sscNodeOfi = new sscjs("https://api.hive-engine.com/rpc/");
 
-//////Look Up tx/block/username
-router.get('/testRpc', authToken, function(req,res){
-    if(Object.keys(req.query).length === 0){ return res.status(400).send({ status: 'failed', message: 'Missing Query!' })};  
-    console.log('To process:', req.query);
-    const type = req.query.type; //for now as type: 'tx'
-    const dataQ = req.query.dataQ;
-    sscNode.find("tokens", "tokens", {}, 1000, 0, [], (err, result) => {
-        // if(result === null){ return res.status(200).send({ status: 'askAgain'})}
+const testNode = "https://hetest.cryptoempirebot.com";
+const sscTestNode = new sscjs(testNode);
+
+///Routes but testing on official API for now.
+//TODO add authToken if necessary.
+////query many contract/table.
+router.get('/queryct', function(req,res){
+    const { contract, table, query, limit, offset, indexes } = req.query; //find(contract, table, query, limit = 1000, offset = 0, indexes = [], callback = null) 
+    if(!contract || !table || !query || !limit || !offset || !indexes){ return res.status(400).send({ status: 'failed', message: 'Missing Query params. Check Documentation please.'})};
+    sscNodeOfi.find(contract, table, JSON.parse(query), Number(limit), Number(offset), JSON.parse(indexes), (err, result) => {
         if(err){ return res.status(500).send({ result: 'error', error: err});}
-        res.status(200).send(result);
+        return res.status(200).send({ status: 'sucess', result: result });
     });
-    // sscNodeOfi.find("tokens", "tokens", {}, 1000, 0, [], (err, result) => {
-    //     // if(result === null){ return res.status(200).send({ status: 'askAgain'})}
-    //     if(err){ return res.status(500).send({ result: 'error', error: err});}
-    //     res.status(200).send(result);
-    // });
 });
+
+/////query one record by contract/table
+router.get('/queryonect', function(req,res){
+    const { contract, table, query, } = req.query; //findOne(contract, table, query, callback  =  null)
+    if(!contract || !table || !query ){ return res.status(400).send({ status: 'failed', message: 'Missing Query params. Check Documentation please.'})};
+    sscNodeOfi.findOne(contract, table, JSON.parse(query), (err, result) => {
+        if(err){ return res.status(500).send({ result: 'error', error: err});}
+        return res.status(200).send({ status: 'sucess', result: result });
+    });
+});
+
+///query blockchain
+router.get('/blockinfo', function(req,res){
+    const { method, block, txid} = req.query;
+    // console.log(req.query);
+    if(!method){ return res.status(400).send({ status: 'failed', message: 'Missing Query params. Check Documentation please.'})};
+    switch (method) {
+        case 'getLatestBlockInfo':
+            sscNodeOfi.getLatestBlockInfo((err, result) => {
+                if(err){ return res.status(500).send({ result: 'error', error: err });}
+                return res.status(200).send({ status: 'sucess', result: result });
+            });
+            break;
+        case 'getBlockInfo':
+            if(!block){ return res.status(400).send({ status: 'failed', message: 'Missing Query params. Check Documentation please.'})};
+            sscNodeOfi.getBlockInfo(Number(block), (err, result) => {
+                if(err){ return res.status(500).send({ result: 'error', error: err });}
+                return res.status(200).send({ status: 'sucess', result: result });
+            });
+            break;
+        case 'getTransactionInfo':
+            if(!txid){ return res.status(400).send({ status: 'failed', message: 'Missing Query params. Check Documentation please.'})};
+            sscNodeOfi.getTransactionInfo(txid, (err, result) => {
+                if(err){ return res.status(500).send({ result: 'error', error: err });}
+                return res.status(200).send({ status: 'sucess', result: result });
+            });
+            break;
+        default:
+            break;
+    }
+});
+////////////////
+
+//////Look Up tx/block/username
+// router.get('/testRpc', authToken, function(req,res){
+//     if(Object.keys(req.query).length === 0){ return res.status(400).send({ status: 'failed', message: 'Missing Query!' })};  
+//     console.log('To process:', req.query);
+//     const type = req.query.type; //for now as type: 'tx'
+//     const dataQ = req.query.dataQ;
+//     // sscNode.find("tokens", "tokens", {}, 1000, 0, [], (err, result) => {
+//     //     // if(result === null){ return res.status(200).send({ status: 'askAgain'})}
+//     //     if(err){ return res.status(500).send({ result: 'error', error: err});}
+//     //     res.status(200).send(result);
+//     // });
+//     // sscNodeOfi.find("tokens", "tokens", {}, 1000, 0, [], (err, result) => {
+//     //     // if(result === null){ return res.status(200).send({ status: 'askAgain'})}
+//     //     if(err){ return res.status(500).send({ result: 'error', error: err});}
+//     //     res.status(200).send(result);
+//     // });
+    
+// });
 //////END Look Up tx/block/username
 
 
