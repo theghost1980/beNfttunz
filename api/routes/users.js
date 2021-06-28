@@ -58,7 +58,7 @@ router.post('/updateFields', authToken, function(req,res){
     if(Object.keys(query).length === 0){ return res.status(400).send({ status: 'failed', message: 'Missing Query!' })};    
     // console.log(req.body); 
     User.findOneAndUpdate(query, req.body, { new: true }, function(err, updated){
-        if(err){ return res.statu(500).send({ status: 'failed', message: err })};
+        if(err){ return res.status(500).send({ status: 'failed', message: err })};
         const msg = updated ? 'Field(s) Updated!' : 'User not found!';
         return res.status(200).send({ status: 'sucess', message: msg, data: updated })
     });
