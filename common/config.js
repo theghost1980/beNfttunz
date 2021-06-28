@@ -16,6 +16,7 @@ module.exports = {
     apiHive: process.env.API_HIVE, //for now as a single url, later on add an array to have backup urls.
     jwtSecret: process.env.JWT_SECRET,
     tokenExp: 21600,
+    thumb_size: 100, //in pixels. 
     cdnCloudName: process.env.CLOUD_NAME,
     cdnApiKey: process.env.CLOUD_API_KEY,
     cdnApiSecret: process.env.CLOUD_API_SECRET,

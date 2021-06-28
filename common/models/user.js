@@ -1,5 +1,8 @@
 const mongoose = require('mongoose');
-const noAvatarYet = 'https://res.cloudinary.com/dbrejj0aq/image/upload/v1624286894/noAvatarYet_zo7uai.png';
+const noAvatarYet = { 
+  avatar: 'https://res.cloudinary.com/dbrejj0aq/image/upload/v1624879141/site/images/noAvatarYet_aivi6i.png',
+  thumb: 'https://res.cloudinary.com/dbrejj0aq/image/upload/v1624879141/site/images/noAvatarYet-thumb_gdwps0.png',
+};
 
 const UserSchema = new mongoose.Schema({
   username: {
@@ -42,8 +45,12 @@ const UserSchema = new mongoose.Schema({
   },
   avatar: {
         type: String,
-        default: noAvatarYet,
-    },
+        default: noAvatarYet.avatar,
+  },
+  thumb: {
+    type: String,
+    default: noAvatarYet.thumb, 
+  },
   banned: {
     type: Boolean,
     default: false,
