@@ -78,6 +78,19 @@ router.get('/avatar', authToken, function(req,res){
     });
 });
 
+//testing get avatar just token but returning or avatar or thumb per request.
+router.get('/pavatar', function(req,res){
+    // console.log(req.query);
+    const username = req.query.username;
+    const type = req.query.type; //as 'avatar' or 'thumb'.
+    if(!type || !username){ return res.status(400).send({ status: 'failed', message: 'Missing Params. Check Documentation please.' })};
+    User.findOne({ username: username }, function(err, found){
+        if(err){ return res.status(500).send({ status: 'failed', message: err })};
+        const toReturn = type === 'avatar' ? { avatar: found.avatar } : { thumb: found.thumb };
+        return res.status(200).send(toReturn);
+    });
+});
+
 router.post('/avatar', authToken, function(req,res){
     const username = req.query.username;
     if(!username){ return res.status(404).send({ status: 'failed', message: 'Missing Params. Check Documentation please.' })};

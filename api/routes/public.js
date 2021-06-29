@@ -25,12 +25,12 @@ router.get('/ping', async function(req,res){
         axios.get(pingRouteCDN).then(response => {
             // console.log('response CDN:');
             // console.log(response);
-            resolve({ status: 'sucess', message: response.data });
+            resolve({ status: 'sucess', message: response.data, id: 'CDN' });
         }).catch(error => reject(error));
     });
     await promise_testCDN.then(result => {
-        services['CDN-cloudinary'] = result;
-    }).catch(reject => services['CDN-cloudinary'] = { status: 'failed', message: reject });
+        services['CDN'] = result;
+    }).catch(reject => services['CDN'] = { status: 'failed', message: reject, id: 'CDN' });
     //test api hive.
     let promise_testHIVE = new Promise((resolve, reject) => {
         client.database.getAccounts(['theghost1980'])
@@ -43,25 +43,25 @@ router.get('/ping', async function(req,res){
         }).catch(error => reject(`Error,${error}`));
     });
     await promise_testHIVE.then(result => {
-        services['API-HIVE'] = { status: 'sucess', message: result };
-    }).catch(reject => services['API-HIVE'] = { status: 'failed', message: reject } );
+        services['HIVE'] = { status: 'sucess', message: result, id: 'HIVE' };
+    }).catch(reject => services['HIVE'] = { status: 'failed', message: reject, id: 'HIVE' } );
     //test to bring test record.
     let promise_testMongoDB = new Promise((resolve, reject) => {
         Test_connection.findById({ _id: '60d08cfa164d7e065df1f21a' }, function(err, found){
             if(err){ 
-                services['mongoDB'] = { status: 'failed', message: err }
+                services['DB'] = { status: 'failed', message: err, id: 'DB' }
                 reject(err);
             };
             if(found){
-                services['mongoDB'] = { status: 'sucess', message: 'MongoDb 200 - OK.' };
+                services['DB'] = { status: 'sucess', message: 'MongoDb 200 - OK.', id: 'DB' };
                 resolve(found);
             }
         });
     });
     promise_testMongoDB.then(result => {
-        return res.status(200).send({ services_status: services });
+        return res.status(200).send({ services_status: [services.CDN, services.HIVE, services.DB] });
     }).catch(reject => {
-        return res.status(200).send({ services_status: services });
+        return res.status(200).send({ services_status: [services.CDN, services.HIVE, services.DB] });
     });
 });
 //////END Routes for devs//////

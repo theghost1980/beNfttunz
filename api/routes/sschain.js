@@ -10,8 +10,32 @@ const sscNodeOfi = new sscjs("https://api.hive-engine.com/rpc/");
 const testNode = "https://hetest.cryptoempirebot.com";
 const sscTestNode = new sscjs(testNode);
 
+//dhive
+const { Client, Signature, cryptoUtils } = require('@hiveio/dhive');
+const client = new Client(config.apiHive);
+
 ///Routes but testing on official API for now.
 //TODO add authToken if necessary.
+
+////Special method to get HIVE + token in one request.
+router.get('/mybalances', function(req,res){
+    const account = req.query.account;
+    if(!account){ return res.status(500).send({ status: 'failed', message: 'Missing Query Params! '})};
+    client.database.getAccounts([`${account}`])
+    .then(result => {
+        if(result.length > 0){
+            const balance_hive = result[0].balance;
+            sscNodeOfi.find('tokens', 'balances', { account: account }, 100, 0, [], (err, result) => {
+                if(err){ return res.status(500).send({ status: 'failed', result: 'error', error: err });}
+                return res.status(200).send({ status: 'sucess', balance_hive: balance_hive, tokens: result });
+            });
+        }else{ //by some reason not found
+            return res.status(404).send({ status: 'failed', message: 'User not Found!' });
+        }
+    }).catch(error => { return res.status(500).send({ status: 'failed', message: 'Error API HIVE', error: error }) });
+});
+////END special method to get HIVE + token in one request.
+
 ////query many contract/table.
 router.get('/queryct', function(req,res){
     const { contract, table, query, limit, offset, indexes } = req.query; //find(contract, table, query, limit = 1000, offset = 0, indexes = [], callback = null) 

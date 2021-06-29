@@ -46,7 +46,7 @@ let resultHandler = function (err) {
 
 /////query user folder(s)
 router.get('/cdndata', authToken, function(req,res){
-    // console.log(req.user);
+    console.log(req.query);
     const username = req.query.username; 
     const subFolder = req.query.subfolder;
     if(!username){ return res.status(400).send({ status: 'failed', message: 'Missing Query!' })};
