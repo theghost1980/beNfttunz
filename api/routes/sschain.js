@@ -7,20 +7,52 @@ const sscjs = require('sscjs');
 const sscNode = new sscjs(config.rpcServer);
 const sscNodeOfi = new sscjs("https://api.hive-engine.com/rpc/");
 
-const testNode = "https://hetest.cryptoempirebot.com";
-const sscTestNode = new sscjs(testNode);
+// const testNode = "https://hetest.cryptoempirebot.com";
+// const sscTestNode = new sscjs(testNode);
 
 //dhive
 const { Client, Signature, cryptoUtils } = require('@hiveio/dhive');
-const client = new Client(config.apiHive);
+// const client = new Client(config.apiHive);
+const client = new Client([ "https://api.hive.blog", "https://api.hivekings.com", "https://anyx.io", "https://api.openhive.network","https://hived.privex.io/"]);
+const dhive = require("@hiveio/dhive");
+const privateKey = dhive.PrivateKey.fromString(config.privKey);
+const postKey = dhive.PrivateKey.fromString(config.postKey);
 
 ///Routes but testing on official API for now.
 //TODO add authToken if necessary.
 
+router.post('/customjson', function(req,res){ //as json & required auths will come stringifyed.
+    const { json, ssc_id, required_auths, required_posting_auths } = req.query;
+    if(!json || !ssc_id || !required_auths || !required_posting_auths){ return res.status(400).send({ status: 'failed', message: 'Missing Params. Check Documentation.'} )};
+    // console.log('About to process:', { json, ssc_id, required_auths, required_posting_auths } );
+    try {
+        const pJson = JSON.parse(json);
+        const pRequiredAuths = JSON.parse(required_auths);
+        const pRequired_posting_auths = JSON.parse(required_posting_auths); 
+        if((pRequiredAuths.length > 0 && pRequired_posting_auths.length > 0) || (pRequiredAuths.length === 0 && pRequired_posting_auths.length === 0)){ return res.status(400).send({ status: 'failed', message: 'Error on auth params. Check Documentation please.'})};  
+        const key2Use = pRequiredAuths.length > 0 ? privateKey : postKey;
+        const data = {
+            id: ssc_id,
+            json: JSON.stringify(pJson),
+            required_auths: pRequiredAuths,                         //required_auths: ['jobaboard'], JSON.parse(required_auths),
+            required_posting_auths: pRequired_posting_auths,         //required_posting_auths: [],
+        };
+        client.broadcast
+        .json(data, key2Use)
+        .then(result => {
+            return res.status(200).send({ status: 'sucess', result: result });
+        })
+        .catch(error => res.status(500).send({ status: 'failed', message: 'Error when Broadcasting.', error: error }));
+    } catch (error) {
+        return res.status(500).send({ status: 'failed', message: 'Error when parsing. Check the params you are sending please.', error: error });
+    }
+    // console.log('Parsed data:', { pJson, pRequiredAuths, pRequired_posting_auths});
+});
+
 ////Special method to get HIVE + token in one request.
 router.get('/mybalances', function(req,res){
     const account = req.query.account;
-    if(!account){ return res.status(500).send({ status: 'failed', message: 'Missing Query Params! '})};
+    if(!account){ return res.status(500).send({ status: 'failed', message: 'Missing Query Params!'})};
     client.database.getAccounts([`${account}`])
     .then(result => {
         if(result.length > 0){

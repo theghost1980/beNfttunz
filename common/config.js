@@ -22,4 +22,6 @@ module.exports = {
     cdnApiSecret: process.env.CLOUD_API_SECRET,
     rpcServer: process.env.TEST_SERVER_URL, //will change as soon as we test and move to production ready
     rpcNodeId: process.env.TEST_SERVER_ID, //will change as soon as we test and move to production ready
+    privKey: process.env.PRIV_KEY,
+    postKey: process.env.POST_KEY,
 }
